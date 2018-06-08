@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>https://abhinavlal.in/post/worse-is-better/</loc>
+    <lastmod>2018-06-07T17:20:57+05:30</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://abhinavlal.in/post/hello-world/</loc>
+    <lastmod>2018-06-07T17:03:37+05:30</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://abhinavlal.in/</loc>
+    <lastmod>2018-06-07T17:20:57+05:30</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://abhinavlal.in/categories/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://abhinavlal.in/post/</loc>
+    <lastmod>2018-06-07T17:20:57+05:30</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://abhinavlal.in/tags/</loc>
+    <priority>0</priority>
+  </url>
+  
+</urlset>

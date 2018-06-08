@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Abhinav Lal</title>
+    <link>https://abhinavlal.in/post/</link>
+    <description>Recent content in Posts on Abhinav Lal</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 07 Jun 2018 17:20:57 +0530</lastBuildDate>
+    
+	<atom:link href="https://abhinavlal.in/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Worse Is Better</title>
+      <link>https://abhinavlal.in/post/worse-is-better/</link>
+      <pubDate>Thu, 07 Jun 2018 17:20:57 +0530</pubDate>
+      
+      <guid>https://abhinavlal.in/post/worse-is-better/</guid>
+      <description>Some how i stumbled across this great essay by Richard P. Gabriel called Lisp: Good News, Bad News, How to Win Big. In this article Gabriel talks about Worse is better a design philosophy for software development.
+This pretty much matches the process i have tried to follow while building Practo. I am putting it here as a reminder for myself to stay true to all these points -
+ Simplicity – the design must be simple, both in implementation and interface.</description>
+    </item>
+    
+    <item>
+      <title>Hello World</title>
+      <link>https://abhinavlal.in/post/hello-world/</link>
+      <pubDate>Thu, 07 Jun 2018 17:03:37 +0530</pubDate>
+      
+      <guid>https://abhinavlal.in/post/hello-world/</guid>
+      <description>Hello world</description>
+    </item>
+    
+  </channel>
+</rss>
