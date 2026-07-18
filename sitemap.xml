@@ -1,6 +1,21 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>https://abhinavlal.in/</loc>
+    <lastmod>2026-07-18T10:00:00+05:30</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://abhinavlal.in/post/</loc>
+    <lastmod>2026-07-18T10:00:00+05:30</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://abhinavlal.in/post/the-regression-tax/</loc>
+    <lastmod>2026-07-18T10:00:00+05:30</lastmod>
+  </url>
   
   <url>
     <loc>https://abhinavlal.in/post/my-current-podcast-list/</loc>
@@ -28,25 +43,11 @@
   </url>
   
   <url>
-    <loc>https://abhinavlal.in/</loc>
-    <lastmod>2018-06-22T14:30:52+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
     <loc>https://abhinavlal.in/categories/</loc>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://abhinavlal.in/post/</loc>
-    <lastmod>2018-06-22T14:30:52+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
     <loc>https://abhinavlal.in/tags/</loc>
-    <priority>0</priority>
   </url>
   
 </urlset>
