@@ -5,8 +5,6 @@ description: "A bit about me and this blog."
 
 I'm Abhinav Lal — though most people just know me as **Lal**. I'm an engineer from Bangalore, India. In 2008 I co-founded [Practo](https://www.practo.com), a platform that helps millions of people find doctors, book appointments, consult online, and manage their health — and helps healthcare providers run their practices.
 
-After many years as CTO I've hired my replacement, so these days my title is Co-founder & Chief Janitor: I keep the floors clean and the interesting problems moving.
-
 Nearly two decades of building the same product teaches you things no book does: that reliability is earned one operational hour at a time, that most complexity comes from coding for a future that never arrives, and that [simple beats clever](/posts/worse-is-better/) almost every time. A lot of my writing here is me trying to pin those lessons down.
 
 ## What I care about
