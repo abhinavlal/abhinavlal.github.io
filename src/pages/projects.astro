@@ -68,16 +68,19 @@ import config from "@/config";
   const DESCRIPTIONS: Record<string, string> = {
     foundation:
       "A multi-user, installable app starter — Google sign-in, per-user data, a typed API, and an installable PWA, so a new self-hosted app is just your tables and screens on top.",
+    skillet:
+      "A shared kitchen for two — paste a recipe link, video, or photo and it extracts ingredients, steps, and macros; plan the week and shop the aggregated list.",
+    lede:
+      "The part worth reading, first — pulls newsletters out of Gmail, filters out the marketing, and presents the writing in a calm three-pane reader.",
   };
 
-  // Repos to always show, even when the public API doesn't return them
-  // (e.g. private repos that haven't been open-sourced yet).
+  // Repos to always show, even if the API call misses them.
   const EXTRAS: Repo[] = [
     {
       name: "skillet",
       html_url: "https://github.com/abhinavlal/skillet",
       description: null,
-      language: null,
+      language: "TypeScript",
       stargazers_count: 0,
       fork: false,
       pushed_at: "2026-07-02T06:36:57Z",
@@ -86,7 +89,7 @@ import config from "@/config";
       name: "lede",
       html_url: "https://github.com/abhinavlal/lede",
       description: null,
-      language: null,
+      language: "TypeScript",
       stargazers_count: 0,
       fork: false,
       pushed_at: "2026-07-01T09:36:44Z",
