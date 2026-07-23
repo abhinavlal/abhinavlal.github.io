@@ -1,0 +1,63 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import Main from "@/components/Main.astro";
+import Footer from "@/components/Footer.astro";
+import LinkButton from "@/components/LinkButton.astro";
+import config from "@/config";
+---
+
+<Layout
+  title={`Twitter | ${config.site.title}`}
+  description="Latest tweets from @abhinavlal."
+>
+  <Header />
+
+  <Breadcrumb />
+
+  <Main
+    pageTitle="Twitter"
+    pageDesc="Shorter, faster thoughts — the latest from @abhinavlal."
+  >
+    <div class="border-border rounded-md border p-4">
+      <a
+        class="twitter-timeline"
+        data-dnt="true"
+        data-tweet-limit="10"
+        data-chrome="noheader nofooter noborders transparent"
+        href="https://twitter.com/abhinavlal?ref_src=twsrc%5Etfw"
+      >
+        Loading tweets from @abhinavlal&hellip;
+      </a>
+    </div>
+
+    <p class="mt-4 text-sm opacity-70">
+      If the timeline doesn&rsquo;t load (embeds can be blocked by browsers or
+      by X itself), you can always find me at{" "}
+      <a
+        class="text-accent underline underline-offset-4"
+        href="https://x.com/abhinavlal"
+      >
+        x.com/abhinavlal
+      </a>.
+    </p>
+
+    <div class="mt-6">
+      <LinkButton
+        href="https://x.com/intent/follow?screen_name=abhinavlal"
+        class="hover:text-accent underline decoration-dashed underline-offset-4"
+      >
+        Follow @abhinavlal &rarr;
+      </LinkButton>
+    </div>
+  </Main>
+
+  <Footer />
+</Layout>
+
+<script
+  is:inline
+  async
+  src="https://platform.twitter.com/widgets.js"
+  charset="utf-8"></script>

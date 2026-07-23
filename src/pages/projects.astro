@@ -1,0 +1,156 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import Main from "@/components/Main.astro";
+import Footer from "@/components/Footer.astro";
+import LinkButton from "@/components/LinkButton.astro";
+import config from "@/config";
+---
+
+<Layout
+  title={`Projects | ${config.site.title}`}
+  description="Open source projects and experiments from my GitHub."
+>
+  <Header />
+
+  <Breadcrumb />
+
+  <Main
+    pageTitle="Projects"
+    pageDesc="Code and experiments from my GitHub — pulled live from the GitHub API."
+  >
+    <ul id="repo-grid" class="grid gap-4 sm:grid-cols-2" hidden></ul>
+
+    <p
+      id="repo-status"
+      class="border-border text-muted-foreground rounded-md border border-dashed p-4 text-sm"
+    >
+      Loading repositories from GitHub&hellip;
+    </p>
+
+    <noscript>
+      <p class="border-border rounded-md border border-dashed p-4 text-sm">
+        JavaScript is off, so the live list can't load — browse everything
+        directly on
+        <a
+          class="text-accent underline underline-offset-4"
+          href="https://github.com/abhinavlal?tab=repositories"
+        >
+          GitHub
+        </a>.
+      </p>
+    </noscript>
+
+    <div class="mt-8">
+      <LinkButton
+        href="https://github.com/abhinavlal?tab=repositories"
+        class="hover:text-accent underline decoration-dashed underline-offset-4"
+      >
+        All repositories on GitHub &rarr;
+      </LinkButton>
+    </div>
+  </Main>
+
+  <Footer />
+</Layout>
+
+<script>
+  const EXCLUDE = new Set([
+    "agent-test",
+    "partner-api-stg",
+    "demochatbot.github.io",
+  ]);
+
+  const LANG_COLORS: Record<string, string> = {
+    JavaScript: "#f1e05a",
+    TypeScript: "#3178c6",
+    Python: "#3572a5",
+    Ruby: "#701516",
+    PHP: "#4f5d95",
+    Go: "#00add8",
+    Shell: "#89e051",
+    HTML: "#e34c26",
+    CSS: "#563d7c",
+    Vue: "#41b883",
+    Rust: "#dea584",
+    Java: "#b07219",
+    Astro: "#ff5a03",
+    "Jupyter Notebook": "#da5b0b",
+  };
+
+  interface Repo {
+    name: string;
+    html_url: string;
+    description: string | null;
+    language: string | null;
+    stargazers_count: number;
+    fork: boolean;
+    pushed_at: string;
+  }
+
+  function esc(s: unknown): string {
+    const d = document.createElement("div");
+    d.textContent = s == null ? "" : String(s);
+    return d.innerHTML;
+  }
+
+  function timeAgo(iso: string): string {
+    const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+    if (days < 1) return "today";
+    if (days < 30) return `${days}d ago`;
+    if (days < 365) return `${Math.floor(days / 30)}mo ago`;
+    return `${Math.floor(days / 365)}y ago`;
+  }
+
+  async function loadRepos() {
+    const grid = document.querySelector<HTMLElement>("#repo-grid");
+    const status = document.querySelector<HTMLElement>("#repo-status");
+    if (!grid || !status || grid.childElementCount > 0) return;
+
+    try {
+      const res = await fetch(
+        "https://api.github.com/users/abhinavlal/repos?per_page=100&sort=pushed"
+      );
+      if (!res.ok) throw new Error(`GitHub API returned ${res.status}`);
+      const repos: Repo[] = await res.json();
+
+      const list = repos
+        .filter(r => !r.fork && !EXCLUDE.has(r.name))
+        .sort(
+          (a, b) =>
+            b.stargazers_count - a.stargazers_count ||
+            new Date(b.pushed_at).getTime() - new Date(a.pushed_at).getTime()
+        )
+        .slice(0, 12);
+
+      if (!list.length) throw new Error("no repos");
+
+      grid.innerHTML = list
+        .map(r => {
+          const lang = r.language
+            ? `<span class="inline-flex items-center gap-1.5"><span class="inline-block size-2 rounded-full" style="background:${LANG_COLORS[r.language] ?? "currentColor"}"></span>${esc(r.language)}</span>`
+            : "";
+          const stars = r.stargazers_count
+            ? `<span>&#9733; ${r.stargazers_count}</span>`
+            : "";
+          return `<li>
+            <a href="${esc(r.html_url)}" class="border-border hover:border-accent group flex h-full flex-col gap-1 rounded-md border p-4 transition-colors">
+              <h3 class="group-hover:text-accent font-semibold">${esc(r.name)}</h3>
+              <p class="grow text-sm opacity-80">${esc(r.description) || "No description yet."}</p>
+              <span class="mt-2 flex items-center gap-4 text-xs opacity-60">${lang}${stars}<span>updated ${timeAgo(r.pushed_at)}</span></span>
+            </a>
+          </li>`;
+        })
+        .join("");
+
+      grid.hidden = false;
+      status.hidden = true;
+    } catch {
+      status.innerHTML = `Couldn&rsquo;t reach the GitHub API right now &mdash; browse everything directly on <a class="text-accent underline underline-offset-4" href="https://github.com/abhinavlal?tab=repositories">GitHub</a>.`;
+    }
+  }
+
+  loadRepos();
+  document.addEventListener("astro:page-load", loadRepos);
+</script>

@@ -1,0 +1,109 @@
+import {
+  defineConfig,
+  envField,
+  fontProviders,
+  svgoOptimizer,
+} from "astro/config";
+import tailwindcss from "@tailwindcss/vite";
+import mdx from "@astrojs/mdx";
+import sitemap from "@astrojs/sitemap";
+import { unified } from "@astrojs/markdown-remark";
+import remarkToc from "remark-toc";
+import remarkCollapse from "remark-collapse";
+import rehypeCallouts from "rehype-callouts";
+import {
+  transformerNotationDiff,
+  transformerNotationHighlight,
+  transformerNotationWordHighlight,
+} from "@shikijs/transformers";
+import { transformerFileName } from "./src/utils/transformers/fileName";
+import llms from "astro-llms-md";
+import config from "./astro-paper.config";
+
+export default defineConfig({
+  site: config.site.url,
+  integrations: [
+    mdx(),
+    sitemap({
+      filter: page =>
+        config.features?.showArchives !== false || !page.endsWith("/archives/"),
+    }),
+    llms({
+      name: config.site.title,
+      description: config.site.description,
+    }),
+  ],
+  redirects: {
+    // Legacy URLs from the previous Hugo site
+    "/post": "/posts",
+    "/post/[...slug]": "/posts/[...slug]",
+    "/categories": "/tags",
+  },
+  i18n: {
+    locales: ["en"],
+    defaultLocale: "en",
+    routing: {
+      prefixDefaultLocale: false,
+    },
+  },
+  markdown: {
+    processor: unified({
+      remarkPlugins: [
+        remarkToc,
+        [remarkCollapse, { test: "Table of contents" }],
+      ],
+      rehypePlugins: [rehypeCallouts],
+    }),
+    shikiConfig: {
+      themes: { light: "min-light", dark: "night-owl" },
+      defaultColor: false,
+      wrap: false,
+      transformers: [
+        transformerFileName({ style: "v2", hideDot: false }),
+        transformerNotationHighlight(),
+        transformerNotationWordHighlight(),
+        transformerNotationDiff({ matchAlgorithm: "v3" }),
+      ],
+    },
+  },
+  vite: {
+    plugins: [tailwindcss()],
+  },
+  fonts: [
+    {
+      // Served from @fontsource/google-sans-code so builds never depend on
+      // Google Fonts being reachable. woff (not woff2) so satori can reuse
+      // the same files for OG image generation.
+      name: "Google Sans Code",
+      cssVariable: "--font-google-sans-code",
+      provider: fontProviders.local(),
+      fallbacks: ["monospace"],
+      options: {
+        variants: [300, 400, 500, 600, 700].flatMap(weight =>
+          (["normal", "italic"] as const).map(style => ({
+            weight,
+            style,
+            src: [
+              `./node_modules/@fontsource/google-sans-code/files/google-sans-code-latin-${weight}-${style}.woff` as const,
+            ],
+          }))
+        ) as [
+          { weight: number; style: "normal" | "italic"; src: [string] },
+          ...{ weight: number; style: "normal" | "italic"; src: [string] }[],
+        ],
+      },
+    },
+  ],
+  env: {
+    schema: {
+      PUBLIC_GOOGLE_SITE_VERIFICATION: envField.string({
+        access: "public",
+        context: "client",
+        optional: true,
+      }),
+    },
+  },
+  experimental: {
+    svgOptimizer: svgoOptimizer(),
+  },
+});
