@@ -10,7 +10,7 @@ import config from "@/config";
 
 <Layout
   title={`Projects | ${config.site.title}`}
-  description="Open source projects and experiments from my GitHub."
+  description="A hand-picked set of projects from my GitHub."
 >
   <Header />
 
@@ -18,20 +18,13 @@ import config from "@/config";
 
   <Main
     pageTitle="Projects"
-    pageDesc="Code and experiments from my GitHub — pulled live from the GitHub API."
+    pageDesc="A few things I've been building — stats pulled live from the GitHub API."
   >
     <ul id="repo-grid" class="grid gap-4 sm:grid-cols-2" hidden></ul>
 
-    <p
-      id="repo-status"
-      class="border-border text-muted-foreground rounded-md border border-dashed p-4 text-sm"
-    >
-      Loading repositories from GitHub&hellip;
-    </p>
-
     <noscript>
       <p class="border-border rounded-md border border-dashed p-4 text-sm">
-        JavaScript is off, so the live list can't load — browse everything
+        JavaScript is off, so the project cards can't render — browse everything
         directly on
         <a
           class="text-accent underline underline-offset-4"
@@ -56,15 +49,56 @@ import config from "@/config";
 </Layout>
 
 <script>
-  const EXCLUDE = new Set([
-    "agent-test",
-    "partner-api-stg",
-    "demochatbot.github.io",
-    "lan-clippy",
-    "blog",
-  ]);
+  // The showcase list, in display order. Only these repos are shown.
+  const SHOWCASE = ["foundation", "skillet", "lede", "saas-data-exporter"];
 
-  // Descriptions for repos that have none on GitHub.
+  interface Repo {
+    name: string;
+    html_url: string;
+    description: string | null;
+    language: string | null;
+    stargazers_count: number;
+    pushed_at: string | null;
+  }
+
+  // Static fallbacks so all four cards render even if the GitHub API is
+  // unreachable. Live API data overrides these when available.
+  const FALLBACKS: Record<string, Repo> = {
+    foundation: {
+      name: "foundation",
+      html_url: "https://github.com/abhinavlal/foundation",
+      description: null,
+      language: "TypeScript",
+      stargazers_count: 0,
+      pushed_at: null,
+    },
+    skillet: {
+      name: "skillet",
+      html_url: "https://github.com/abhinavlal/skillet",
+      description: null,
+      language: "TypeScript",
+      stargazers_count: 0,
+      pushed_at: null,
+    },
+    lede: {
+      name: "lede",
+      html_url: "https://github.com/abhinavlal/lede",
+      description: null,
+      language: "TypeScript",
+      stargazers_count: 0,
+      pushed_at: null,
+    },
+    "saas-data-exporter": {
+      name: "saas-data-exporter",
+      html_url: "https://github.com/abhinavlal/saas-data-exporter",
+      description: null,
+      language: null,
+      stargazers_count: 0,
+      pushed_at: null,
+    },
+  };
+
+  // Descriptions for repos that have none set on GitHub.
   const DESCRIPTIONS: Record<string, string> = {
     foundation:
       "A multi-user, installable app starter — Google sign-in, per-user data, a typed API, and an installable PWA, so a new self-hosted app is just your tables and screens on top.",
@@ -73,28 +107,6 @@ import config from "@/config";
     lede:
       "The part worth reading, first — pulls newsletters out of Gmail, filters out the marketing, and presents the writing in a calm three-pane reader.",
   };
-
-  // Repos to always show, even if the API call misses them.
-  const EXTRAS: Repo[] = [
-    {
-      name: "skillet",
-      html_url: "https://github.com/abhinavlal/skillet",
-      description: null,
-      language: "TypeScript",
-      stargazers_count: 0,
-      fork: false,
-      pushed_at: "2026-07-02T06:36:57Z",
-    },
-    {
-      name: "lede",
-      html_url: "https://github.com/abhinavlal/lede",
-      description: null,
-      language: "TypeScript",
-      stargazers_count: 0,
-      fork: false,
-      pushed_at: "2026-07-01T09:36:44Z",
-    },
-  ];
 
   const LANG_COLORS: Record<string, string> = {
     JavaScript: "#f1e05a",
@@ -113,16 +125,6 @@ import config from "@/config";
     "Jupyter Notebook": "#da5b0b",
   };
 
-  interface Repo {
-    name: string;
-    html_url: string;
-    description: string | null;
-    language: string | null;
-    stargazers_count: number;
-    fork: boolean;
-    pushed_at: string;
-  }
-
   function esc(s: unknown): string {
     const d = document.createElement("div");
     d.textContent = s == null ? "" : String(s);
@@ -137,54 +139,53 @@ import config from "@/config";
     return `${Math.floor(days / 365)}y ago`;
   }
 
+  function render(byName: Map<string, Repo>) {
+    const grid = document.querySelector<HTMLElement>("#repo-grid");
+    if (!grid) return;
+
+    grid.innerHTML = SHOWCASE.map(name => {
+      const r = byName.get(name) ?? FALLBACKS[name];
+      const description = r.description ?? DESCRIPTIONS[name] ?? "";
+      const lang = r.language
+        ? `<span class="inline-flex items-center gap-1.5"><span class="inline-block size-2 rounded-full" style="background:${LANG_COLORS[r.language] ?? "currentColor"}"></span>${esc(r.language)}</span>`
+        : "";
+      const stars = r.stargazers_count
+        ? `<span>&#9733; ${r.stargazers_count}</span>`
+        : "";
+      const updated = r.pushed_at
+        ? `<span>updated ${timeAgo(r.pushed_at)}</span>`
+        : "";
+      return `<li>
+        <a href="${esc(r.html_url)}" class="border-border hover:border-accent group flex h-full flex-col gap-1 rounded-md border p-4 transition-colors">
+          <h3 class="group-hover:text-accent font-semibold">${esc(r.name)}</h3>
+          <p class="grow text-sm opacity-80">${esc(description)}</p>
+          <span class="mt-2 flex items-center gap-4 text-xs opacity-60">${lang}${stars}${updated}</span>
+        </a>
+      </li>`;
+    }).join("");
+
+    grid.hidden = false;
+  }
+
   async function loadRepos() {
     const grid = document.querySelector<HTMLElement>("#repo-grid");
-    const status = document.querySelector<HTMLElement>("#repo-status");
-    if (!grid || !status || grid.childElementCount > 0) return;
+    if (!grid || grid.childElementCount > 0) return;
 
+    const byName = new Map<string, Repo>();
     try {
       const res = await fetch(
         "https://api.github.com/users/abhinavlal/repos?per_page=100&sort=pushed"
       );
-      if (!res.ok) throw new Error(`GitHub API returned ${res.status}`);
-      const repos: Repo[] = await res.json();
-
-      const fromApi = repos.filter(r => !r.fork && !EXCLUDE.has(r.name));
-      const apiNames = new Set(fromApi.map(r => r.name));
-      const list = [...fromApi, ...EXTRAS.filter(r => !apiNames.has(r.name))]
-        .map(r => ({ ...r, description: r.description ?? DESCRIPTIONS[r.name] ?? null }))
-        .sort(
-          (a, b) =>
-            b.stargazers_count - a.stargazers_count ||
-            new Date(b.pushed_at).getTime() - new Date(a.pushed_at).getTime()
-        )
-        .slice(0, 12);
-
-      if (!list.length) throw new Error("no repos");
-
-      grid.innerHTML = list
-        .map(r => {
-          const lang = r.language
-            ? `<span class="inline-flex items-center gap-1.5"><span class="inline-block size-2 rounded-full" style="background:${LANG_COLORS[r.language] ?? "currentColor"}"></span>${esc(r.language)}</span>`
-            : "";
-          const stars = r.stargazers_count
-            ? `<span>&#9733; ${r.stargazers_count}</span>`
-            : "";
-          return `<li>
-            <a href="${esc(r.html_url)}" class="border-border hover:border-accent group flex h-full flex-col gap-1 rounded-md border p-4 transition-colors">
-              <h3 class="group-hover:text-accent font-semibold">${esc(r.name)}</h3>
-              <p class="grow text-sm opacity-80">${esc(r.description) || "No description yet."}</p>
-              <span class="mt-2 flex items-center gap-4 text-xs opacity-60">${lang}${stars}<span>updated ${timeAgo(r.pushed_at)}</span></span>
-            </a>
-          </li>`;
-        })
-        .join("");
-
-      grid.hidden = false;
-      status.hidden = true;
+      if (res.ok) {
+        const repos: Repo[] = await res.json();
+        for (const r of repos) {
+          if (SHOWCASE.includes(r.name)) byName.set(r.name, r);
+        }
+      }
     } catch {
-      status.innerHTML = `Couldn&rsquo;t reach the GitHub API right now &mdash; browse everything directly on <a class="text-accent underline underline-offset-4" href="https://github.com/abhinavlal?tab=repositories">GitHub</a>.`;
+      // API unreachable — fall through and render the static fallbacks.
     }
+    render(byName);
   }
 
   loadRepos();
