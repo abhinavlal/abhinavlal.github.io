@@ -60,7 +60,38 @@ import config from "@/config";
     "agent-test",
     "partner-api-stg",
     "demochatbot.github.io",
+    "lan-clippy",
+    "blog",
   ]);
+
+  // Descriptions for repos that have none on GitHub.
+  const DESCRIPTIONS: Record<string, string> = {
+    foundation:
+      "The bedrock — shared building blocks and starting points for everything I build next.",
+  };
+
+  // Repos to always show, even when the public API doesn't return them
+  // (e.g. private repos that haven't been open-sourced yet).
+  const EXTRAS: Repo[] = [
+    {
+      name: "skillet",
+      html_url: "https://github.com/abhinavlal/skillet",
+      description: "Where half-baked ideas get cooked into working software.",
+      language: null,
+      stargazers_count: 0,
+      fork: false,
+      pushed_at: "2026-07-02T06:36:57Z",
+    },
+    {
+      name: "lede",
+      html_url: "https://github.com/abhinavlal/lede",
+      description: "Every story needs an opening line — an experiment in reading the news better.",
+      language: null,
+      stargazers_count: 0,
+      fork: false,
+      pushed_at: "2026-07-01T09:36:44Z",
+    },
+  ];
 
   const LANG_COLORS: Record<string, string> = {
     JavaScript: "#f1e05a",
@@ -115,8 +146,10 @@ import config from "@/config";
       if (!res.ok) throw new Error(`GitHub API returned ${res.status}`);
       const repos: Repo[] = await res.json();
 
-      const list = repos
-        .filter(r => !r.fork && !EXCLUDE.has(r.name))
+      const fromApi = repos.filter(r => !r.fork && !EXCLUDE.has(r.name));
+      const apiNames = new Set(fromApi.map(r => r.name));
+      const list = [...fromApi, ...EXTRAS.filter(r => !apiNames.has(r.name))]
+        .map(r => ({ ...r, description: r.description ?? DESCRIPTIONS[r.name] ?? null }))
         .sort(
           (a, b) =>
             b.stargazers_count - a.stargazers_count ||

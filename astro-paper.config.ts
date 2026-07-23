@@ -3,7 +3,7 @@ import { defineAstroPaperConfig } from "./src/types/config";
 export default defineAstroPaperConfig({
   site: {
     url: "https://abhinavlal.in/",
-    title: "Abhinav Lal",
+    title: "Lal",
     description:
       "Things I find interesting — writing about software, simplicity, and building Practo.",
     author: "Abhinav Lal",
