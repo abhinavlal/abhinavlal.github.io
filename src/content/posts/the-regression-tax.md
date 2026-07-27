@@ -2,7 +2,6 @@
 title: The Regression Tax
 description: Every capability leap pays a regression tax. You can't avoid the tax, but you can choose who pays it.
 pubDatetime: 2026-07-18T10:00:00+05:30
-featured: true
 tags:
   - software
   - engineering
