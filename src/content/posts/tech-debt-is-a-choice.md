@@ -2,6 +2,7 @@
 title: Tech Debt Is a Choice. Mess Is Not.
 description: Tech debt is an intentional shortcut. Mess is poor execution. Both used to be limited by human attention — AI removes that limit on both sides.
 pubDatetime: 2026-08-17T10:00:00+05:30
+featured: true
 tags:
   - engineering
   - ai
