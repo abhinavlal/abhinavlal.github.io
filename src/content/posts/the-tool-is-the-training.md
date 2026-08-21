@@ -2,7 +2,6 @@
 title: The Tool Is the Training
 description: Corporate training existed to fix information asymmetry. AI is the first technology you can ask how to use itself — what's scarce now is agency.
 pubDatetime: 2026-07-27T19:00:00+05:30
-featured: true
 tags:
   - ai
   - work
