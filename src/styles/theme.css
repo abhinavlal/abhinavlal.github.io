@@ -7,28 +7,43 @@
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
+  --color-surface: var(--surface);
   --font-app: var(--font-google-sans-code);
 }
 
-/* Light theme values */
-:root,
-[data-theme="light"] {
-  --background: #fdfdfd;
-  --foreground: #282728;
-  --accent: #006cac;
-  --accent-foreground: #ffffff;
-  --muted: #e6e6e6;
-  --muted-foreground: #6b7280;
-  --border: #ece9e9;
+/*
+ * Themes follow Omarchy (https://omarchy.org): every theme is a named palette
+ * applied via data-theme="<slug>" on <html>, and data-mode="light|dark" tells
+ * mode-dependent styling (Tailwind's `dark:` variant, Shiki) which side to use.
+ *
+ * The fallbacks below match Omarchy's defaults — Flexoki Light before JS runs
+ * for light-preferring visitors, Tokyo Night for everyone else — so a page
+ * never paints unthemed.
+ */
+:root {
+  color-scheme: light;
+  --background: #fffcf0;
+  --foreground: #100f0f;
+  --accent: #205ea6;
+  --accent-foreground: #fffcf0;
+  --muted: #cecdc3;
+  --muted-foreground: #878580;
+  --border: #b7b5ac;
+  --surface: #e6e4d9;
 }
 
-/* Dark theme values */
-[data-theme="dark"] {
-  --background: #212737;
-  --foreground: #eaedf3;
-  --accent: #ff6b01;
-  --accent-foreground: #ffffff;
-  --muted: #343f60;
-  --muted-foreground: #afb9ca;
-  --border: #ab4b08;
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --background: #1a1b26;
+    --foreground: #a9b1d6;
+    --accent: #7aa2f7;
+    --accent-foreground: #0e0e14;
+    --muted: #292e42;
+    --muted-foreground: #565f89;
+    --border: #414868;
+    --surface: #24283b;
+  }
 }
+
+@import "./omarchy-themes.css";

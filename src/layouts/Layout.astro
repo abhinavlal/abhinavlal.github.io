@@ -5,6 +5,11 @@ import { getRelativeLocaleUrl } from "astro:i18n";
 import { resolveDefaultOgImagePath } from "@/utils/resolveDefaultOgImagePath";
 import { getAssetPath } from "@/utils/withBase";
 import config from "@/config";
+import {
+  OMARCHY_THEMES,
+  DEFAULT_DARK_THEME,
+  DEFAULT_LIGHT_THEME,
+} from "@/data/omarchy-themes";
 import "@/styles/global.css";
 
 type Props = {
@@ -24,6 +29,11 @@ const {
 } = Astro.props;
 
 const socialImageURL = new URL(ogImage, Astro.site ?? Astro.url);
+
+// slug -> mode map for the inline FOUC-prevention script below.
+const themeModes = Object.fromEntries(
+  OMARCHY_THEMES.map(t => [t.slug, t.mode])
+);
 const rssHref = getRelativeLocaleUrl(
   Astro.currentLocale ?? config.site.lang,
   "rss.xml"
@@ -96,19 +106,29 @@ const rssHref = getRelativeLocaleUrl(
     }
 
     <!--
-      Inline FOUC-prevention script: sets data-theme on <html> before
-      the browser paints. Runs synchronously, no defer/async.
+      Inline FOUC-prevention script: resolves the Omarchy theme and sets
+      data-theme / data-mode on <html> before the browser paints.
+      Runs synchronously, no defer/async.
     -->
-    <script is:inline>
+    <script
+      is:inline
+      define:vars={{ themeModes, DEFAULT_DARK_THEME, DEFAULT_LIGHT_THEME }}
+    >
       (function () {
-        const stored = localStorage.getItem("theme");
+        let stored = null;
+        try {
+          stored = localStorage.getItem("theme");
+        } catch {}
         const prefersDark = window.matchMedia(
           "(prefers-color-scheme: dark)"
         ).matches;
-        const theme = stored ?? (prefersDark ? "dark" : "light");
+        const fallback = prefersDark ? DEFAULT_DARK_THEME : DEFAULT_LIGHT_THEME;
+        const theme = stored && themeModes[stored] ? stored : fallback;
+        const mode = themeModes[theme];
         const root = document.firstElementChild;
         root?.setAttribute("data-theme", theme);
-        root?.classList.toggle("dark", theme === "dark");
+        root?.setAttribute("data-mode", mode);
+        root?.classList.toggle("dark", mode === "dark");
         // Expose value so theme.ts can skip re-detection.
         window.__theme = { value: theme };
       })();
