@@ -16,6 +16,15 @@ import {
   transformerNotationHighlight,
   transformerNotationWordHighlight,
 } from "@shikijs/transformers";
+import { createCssVariablesTheme } from "shiki";
+
+// Token colours come from the active Omarchy theme via --shiki-* vars (theme.css).
+const omarchyCodeTheme = createCssVariablesTheme({
+  name: "omarchy",
+  variablePrefix: "--shiki-",
+  variableDefaults: {},
+  fontStyle: true,
+});
 import { transformerFileName } from "./src/utils/transformers/fileName";
 import llms from "astro-llms-md";
 import config from "./astro-paper.config";
@@ -55,8 +64,7 @@ export default defineConfig({
       rehypePlugins: [rehypeCallouts],
     }),
     shikiConfig: {
-      themes: { light: "min-light", dark: "night-owl" },
-      defaultColor: false,
+      theme: omarchyCodeTheme,
       wrap: false,
       transformers: [
         transformerFileName({ style: "v2", hideDot: false }),

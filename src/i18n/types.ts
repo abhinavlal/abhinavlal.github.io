@@ -56,6 +56,13 @@ export interface UIStrings {
     openMenu: string;
     closeMenu: string;
     toggleTheme: string;
+    themeMenu: string;
+    nextTheme: string;
+    previousTheme: string;
+    currentTheme: string;
+    themeHintTitle: string;
+    themeHintBody: string;
+    dismiss: string;
     searchPlaceholder: string;
     noResults: string;
     goToPreviousPage: string;
