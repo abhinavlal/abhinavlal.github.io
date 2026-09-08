@@ -60,7 +60,12 @@ export default {
     toggleTheme: "Change theme",
     themeMenu: "Themes",
     nextTheme: "Next theme",
+    previousTheme: "Previous theme",
     currentTheme: "Current theme",
+    themeHintTitle: "Change the theme",
+    themeHintBody:
+      "Press T, or tap here. Ctrl+Shift+Space cycles through every theme.",
+    dismiss: "Dismiss",
     searchPlaceholder: "Search posts...",
     noResults: "No results found",
     goToPreviousPage: "Go to previous page",

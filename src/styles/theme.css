@@ -8,6 +8,12 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
   --color-surface: var(--surface);
+  --color-ansi-red: var(--red);
+  --color-ansi-green: var(--green);
+  --color-ansi-yellow: var(--yellow);
+  --color-ansi-blue: var(--blue);
+  --color-ansi-magenta: var(--magenta);
+  --color-ansi-cyan: var(--cyan);
   --font-app: var(--font-google-sans-code);
 }
 
@@ -22,6 +28,13 @@
  */
 :root {
   color-scheme: light;
+  /* ANSI palette; themes that predate the palette export fall back to accent. */
+  --red: var(--accent);
+  --green: var(--accent);
+  --yellow: var(--accent);
+  --blue: var(--accent);
+  --magenta: var(--accent);
+  --cyan: var(--accent);
   --background: #fffcf0;
   --foreground: #100f0f;
   --accent: #205ea6;
@@ -47,3 +60,19 @@
 }
 
 @import "./omarchy-themes.css";
+@import "./omarchy-palettes.css";
+
+/* Shiki css-variables theme → active Omarchy palette. */
+:root {
+  --shiki-foreground: var(--foreground);
+  --shiki-background: var(--surface);
+  --shiki-token-comment: var(--muted-foreground);
+  --shiki-token-keyword: var(--magenta);
+  --shiki-token-string: var(--green);
+  --shiki-token-string-expression: var(--green);
+  --shiki-token-constant: var(--yellow);
+  --shiki-token-function: var(--blue);
+  --shiki-token-parameter: var(--red);
+  --shiki-token-punctuation: var(--foreground);
+  --shiki-token-link: var(--cyan);
+}

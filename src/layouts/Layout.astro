@@ -10,6 +10,8 @@ import {
   DEFAULT_DARK_THEME,
   DEFAULT_LIGHT_THEME,
 } from "@/data/omarchy-themes";
+import ThemeHint from "@/components/ThemeHint.astro";
+import ThemePicker from "@/components/ThemePicker.astro";
 import "@/styles/global.css";
 
 type Props = {
@@ -140,6 +142,14 @@ const rssHref = getRelativeLocaleUrl(
     class="bg-background font-app text-foreground selection:bg-accent/75 selection:text-accent-foreground flex min-h-svh flex-col"
   >
     <slot />
+    {
+      config.features.lightAndDarkMode && (
+        <>
+          <ThemePicker />
+          <ThemeHint />
+        </>
+      )
+    }
     <script>
       import "@/scripts/theme";
     </script>

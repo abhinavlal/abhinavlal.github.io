@@ -15,6 +15,7 @@ import {
 } from "@/data/omarchy-themes";
 
 const THEME_KEY = "theme";
+const HINT_KEY = "theme-hint-dismissed";
 const slugs = OMARCHY_THEMES.map(t => t.slug);
 const byPath = new Map(OMARCHY_THEMES.map(t => [t.slug, t]));
 
@@ -47,8 +48,39 @@ try {
   /* storage unavailable */
 }
 
+function dismissHint(): void {
+  const hint = document.querySelector<HTMLElement>("#theme-hint");
+  if (hint) hint.hidden = true;
+  try {
+    localStorage.setItem(HINT_KEY, "1");
+  } catch {
+    /* storage unavailable */
+  }
+}
+
+function setupHint(): void {
+  const hint = document.querySelector<HTMLElement>("#theme-hint");
+  if (!hint) return;
+  let dismissed = userPicked;
+  try {
+    dismissed ||= localStorage.getItem(HINT_KEY) !== null;
+  } catch {
+    /* storage unavailable */
+  }
+  if (dismissed) return;
+  hint.hidden = false;
+  hint.querySelector("#theme-hint-open")?.addEventListener("click", () => {
+    dismissHint();
+    openMenu(true);
+  });
+  hint
+    .querySelector("#theme-hint-close")
+    ?.addEventListener("click", dismissHint);
+}
+
 function persist(): void {
   userPicked = true;
+  dismissHint();
   try {
     localStorage.setItem(THEME_KEY, themeValue);
   } catch {
@@ -80,6 +112,7 @@ function reflect(): void {
       option.setAttribute("aria-checked", String(active));
       option.tabIndex = active ? 0 : -1;
     });
+  if (isMenuOpen()) centerActiveCard("smooth");
 
   // Fill <meta name="theme-color"> with the computed background colour so
   // Android's browser chrome matches the page background.
@@ -100,20 +133,28 @@ export function nextTheme(step = 1): void {
   setTheme(slugs[(i + step + slugs.length) % slugs.length]);
 }
 
+function centerActiveCard(behavior: ScrollBehavior): void {
+  const active = document.querySelector<HTMLButtonElement>(
+    '#theme-menu [data-theme-option][aria-checked="true"]'
+  );
+  active?.scrollIntoView({ behavior, inline: "center", block: "nearest" });
+}
+
 function openMenu(open: boolean): void {
   const btn = document.querySelector<HTMLButtonElement>("#theme-btn");
   const menu = document.querySelector<HTMLElement>("#theme-menu");
   if (!btn || !menu) return;
   menu.hidden = !open;
   btn.setAttribute("aria-expanded", String(open));
+  document.body.style.overflow = open ? "hidden" : "";
   if (open) {
-    const active = menu.querySelector<HTMLButtonElement>(
-      '[data-theme-option][aria-checked="true"]'
-    );
+    dismissHint();
+    centerActiveCard("instant");
     (
-      active ?? menu.querySelector<HTMLButtonElement>("[data-theme-option]")
-    )?.focus();
-    active?.scrollIntoView({ block: "nearest" });
+      menu.querySelector<HTMLButtonElement>(
+        '[data-theme-option][aria-checked="true"]'
+      ) ?? menu.querySelector<HTMLButtonElement>("[data-theme-option]")
+    )?.focus({ preventScroll: true });
   }
 }
 
@@ -124,6 +165,7 @@ function isMenuOpen(): boolean {
 
 function setup(): void {
   reflect();
+  setupHint();
 
   const btn = document.querySelector<HTMLButtonElement>("#theme-btn");
   const menu = document.querySelector<HTMLElement>("#theme-menu");
@@ -132,50 +174,55 @@ function setup(): void {
   btn.addEventListener("click", () => openMenu(!isMenuOpen()));
 
   menu.addEventListener("click", event => {
-    const option = (event.target as HTMLElement).closest<HTMLButtonElement>(
-      "[data-theme-option]"
-    );
+    const target = event.target as HTMLElement;
+    if (target.closest("[data-theme-prev]")) return nextTheme(-1);
+    if (target.closest("[data-theme-next]")) return nextTheme(1);
+    if (target.closest("[data-theme-close]") || target === menu) {
+      openMenu(false);
+      btn.focus();
+      return;
+    }
+    const option = target.closest<HTMLButtonElement>("[data-theme-option]");
     if (!option) return;
-    setTheme(option.dataset.themeOption!);
-    openMenu(false);
-    btn.focus();
+    if (option.getAttribute("aria-checked") === "true") {
+      openMenu(false);
+      btn.focus();
+    } else {
+      setTheme(option.dataset.themeOption!);
+    }
   });
 
-  // Arrow-key navigation inside the menu.
+  // Arrow keys browse themes live; Enter keeps the current one and closes.
   menu.addEventListener("keydown", event => {
-    const options = Array.from(
-      menu.querySelectorAll<HTMLButtonElement>("[data-theme-option]")
-    );
-    const current = options.indexOf(
-      document.activeElement as HTMLButtonElement
-    );
-    let next = -1;
     switch (event.key) {
+      case "ArrowRight":
       case "ArrowDown":
-        next = (current + 1) % options.length;
+        nextTheme(1);
         break;
+      case "ArrowLeft":
       case "ArrowUp":
-        next = (current - 1 + options.length) % options.length;
+        nextTheme(-1);
         break;
       case "Home":
-        next = 0;
+        setTheme(slugs[0]);
         break;
       case "End":
-        next = options.length - 1;
+        setTheme(slugs[slugs.length - 1]);
         break;
+      case "Enter":
       case "Escape":
         openMenu(false);
         btn.focus();
-        event.preventDefault();
-        return;
-      case "Tab":
-        openMenu(false);
-        return;
+        break;
       default:
         return;
     }
     event.preventDefault();
-    options[next]?.focus();
+    document
+      .querySelector<HTMLButtonElement>(
+        '#theme-menu [data-theme-option][aria-checked="true"]'
+      )
+      ?.focus({ preventScroll: true });
   });
 }
 
@@ -186,13 +233,27 @@ document.addEventListener("click", event => {
   if (!target.closest("#theme-btn, #theme-menu")) openMenu(false);
 });
 
-// Ctrl+Shift+Space cycles to the next theme (Shift+Alt for previous).
+// T opens the theme menu; Ctrl+Shift+Space cycles to the next theme
+// (Shift+Alt for previous).
 document.addEventListener("keydown", event => {
-  if (event.code !== "Space" || !event.ctrlKey || !event.shiftKey) return;
   const target = event.target as HTMLElement | null;
-  if (target?.matches("input, textarea, select, [contenteditable]")) return;
-  event.preventDefault();
-  nextTheme(event.altKey ? -1 : 1);
+  if (target?.matches?.("input, textarea, select, [contenteditable]")) return;
+
+  if (event.code === "Space" && event.ctrlKey && event.shiftKey) {
+    event.preventDefault();
+    nextTheme(event.altKey ? -1 : 1);
+    return;
+  }
+  if (
+    event.key.toLowerCase() === "t" &&
+    !event.ctrlKey &&
+    !event.metaKey &&
+    !event.altKey
+  ) {
+    event.preventDefault();
+    dismissHint();
+    openMenu(!isMenuOpen());
+  }
 });
 
 setup();

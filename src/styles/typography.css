@@ -13,8 +13,12 @@
       @apply text-foreground mb-3;
     }
 
+    h2 {
+      @apply text-accent;
+    }
+
     h3 {
-      @apply italic;
+      @apply text-ansi-cyan italic;
     }
 
     p,
@@ -79,7 +83,7 @@
     }
 
     blockquote {
-      @apply border-s-accent/80 wrap-break-word opacity-80;
+      @apply border-s-ansi-magenta wrap-break-word opacity-80;
     }
 
     details:not(.callout) {
@@ -97,21 +101,17 @@
 
   /* ===== Code Blocks & Syntax Highlighting ===== */
   .astro-code {
-    @apply outline-border flex border bg-(--shiki-light-bg) text-(--shiki-light) [&_span]:text-(--shiki-light);
-  }
-
-  html[data-mode="dark"] .astro-code {
-    @apply bg-(--shiki-dark-bg) text-(--shiki-dark) [&_span]:text-(--shiki-dark);
+    @apply outline-border border-border flex border;
   }
 
   /* Styles for Shiki transformers */
   /* https://shiki.style/packages/transformers */
   .astro-code {
     .line.diff.add {
-      @apply relative inline-block w-full bg-green-400/20 before:absolute before:-left-3 before:text-green-500 before:content-['+'];
+      @apply bg-ansi-green/20 before:text-ansi-green relative inline-block w-full before:absolute before:-left-3 before:content-['+'];
     }
     .line.diff.remove {
-      @apply relative inline-block w-full bg-red-500/20 before:absolute before:-left-3 before:text-red-500 before:content-['-'];
+      @apply bg-ansi-red/20 before:text-ansi-red relative inline-block w-full before:absolute before:-left-3 before:content-['-'];
     }
     .line.highlighted {
       @apply inline-block w-full bg-slate-400/20;
